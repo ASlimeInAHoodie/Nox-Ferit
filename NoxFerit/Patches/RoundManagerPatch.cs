@@ -13,13 +13,16 @@ namespace NoxFerit.Patches
     {
         private static RoundManager instance;
 
+        
         [HarmonyPatch("SpawnScrapInLevel")]
         [HarmonyPrefix]
         static void patchSpawnScrapInLevel(ref float ___scrapAmountMultiplier)
         {
-            // 3x scrap
-            ___scrapAmountMultiplier = NFBase.scrapMultiplier;
+            NFBase.hasNightStruck = false;
+            NFBase.extraEnemyPower = NFBase.extraEnemyPowerBase;
+            NFBase.scrapAmountMultiplier = ___scrapAmountMultiplier;
         }
+        
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
@@ -55,6 +58,26 @@ namespace NoxFerit.Patches
 
                 }
             }
+        }
+
+        [HarmonyPatch("Start")]
+        [HarmonyPostfix]
+        static void StartPatch(ref float ___scrapAmountMultiplier)
+        {
+            // set scrap at start of game
+            ___scrapAmountMultiplier += NFBase.scrapMultiplier;
+
+            // Possible scaling?
+            //NFBase.extraEnemyPower += 1;
+            //NFBase.scrapMultiplier += 0.1f;
+        }
+
+        //DespawnPropsAtEndOfRound
+        [HarmonyPatch("UnloadSceneObjectsEarly")]
+        [HarmonyPostfix]
+        static void UnloadSceneObjectsEarlyPatch()
+        {
+            instance = null;
         }
     }
 }

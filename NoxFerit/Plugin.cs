@@ -16,7 +16,7 @@ namespace NoxFerit
     {
         private const string modGUID = "aslimeinahoodie.NoxFerit";
         private const string modName = "Nox Ferit";
-        private const string modVersion = "1.0.0";
+        private const string modVersion = "1.1.0";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -25,10 +25,13 @@ namespace NoxFerit
         internal new static ManualLogSource Logger;
 
         internal new static bool hasNightStruck;
+        internal new static float normalizedTimeOfDay;
+        internal new static float scrapAmountMultiplier;
         internal new static bool isDoubledJump;
 
         internal new static float scrapMultiplier;
-        internal new static int nightStrikeTime;
+        internal new static float nightStrikeTime;
+        internal new static int extraEnemyPowerBase;
         internal new static int extraEnemyPower;
 
 
@@ -46,20 +49,21 @@ namespace NoxFerit
             Logger.LogInfo("The Nox Oculus has opened...");
 
             harmony.PatchAll(typeof(NFBase));
-            //harmony.PatchAll(typeof(PlayerControllerBPatch)); // <- Enable for god mode, infinite sprint, double jump
+            //harmony.PatchAll(typeof(PlayerControllerBCheats)); // <- Enable for god mode, infinite sprint, double jump
+            //harmony.PatchAll(typeof(PlayerControllerBPatch)); // <- Enable for debugging
             harmony.PatchAll(typeof(RoundManagerPatch));
             harmony.PatchAll(typeof(TimeOfDayPatch));
 
             var configScrapMultiplier = base.Config.Bind(
                 "General",
                 "Scrap Multiplier",
-                3,
-                "Modify the amount of scrap spawned."
+                3f,
+                "Add this much to the multiplier of scrap spawned on moons (1 = +100%, 2.5 = +250%)."
                 );
             var configNightStrikeTime = base.Config.Bind(
                 "General",
                 "Night Strikes Time",
-                8,
+                7f,
                 "Roughly how many hours have past (including 8 am) before Night Strikes (Range between 1 for 8am, and 15 for 12am)."
                 );
             var configEnemyPower = base.Config.Bind(
@@ -71,7 +75,8 @@ namespace NoxFerit
 
             scrapMultiplier = configScrapMultiplier.Value;
             nightStrikeTime = configNightStrikeTime.Value;
-            extraEnemyPower = configEnemyPower.Value;
+            extraEnemyPowerBase = configEnemyPower.Value;
+            extraEnemyPower = extraEnemyPowerBase;
 
             if (nightStrikeTime > 15 || nightStrikeTime < 1)
             {

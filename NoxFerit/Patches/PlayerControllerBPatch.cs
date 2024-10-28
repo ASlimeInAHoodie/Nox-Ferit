@@ -11,7 +11,7 @@ using UnityEngine;
 namespace NoxFerit.Patches
 {
     [HarmonyPatch(typeof(PlayerControllerB))]
-    internal class PlayerControllerBPatch
+    internal class PlayerControllerBCheats
     {
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
@@ -60,7 +60,7 @@ namespace NoxFerit.Patches
             return false;
         }
 
-        [HarmonyPatch("Jump_performed")]
+        /*[HarmonyPatch("Jump_performed")]
         [HarmonyPrefix]
         static void patchJump_performed(ref bool ___isJumping, ref CharacterController ___thisController)
         {
@@ -73,6 +73,24 @@ namespace NoxFerit.Patches
                 NFBase.isDoubledJump = true;
                 ___isJumping = false;
             }
+        }*/
+    }
+
+    [HarmonyPatch(typeof(PlayerControllerB))]
+    internal class PlayerControllerBPatch
+    {
+        [HarmonyPatch("PlayerJump")]
+        [HarmonyPrefix]
+        static void patchPlayerJump()
+        {
+            NFBase.Logger.LogDebug(
+                " normalizedTimeOfDay: " + NFBase.normalizedTimeOfDay + 
+                " \n hasNightStruck: " + NFBase.hasNightStruck + 
+                " \n scrapAmountMultiplier: " + NFBase.scrapAmountMultiplier +
+                " \n scrapMultiplier: " + NFBase.scrapMultiplier + 
+                " \n nightStrikeTime: " + NFBase.nightStrikeTime + 
+                " \n extraEnemyPower: " + NFBase.extraEnemyPower
+                );
         }
     }
 }

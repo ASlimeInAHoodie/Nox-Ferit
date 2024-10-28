@@ -20,6 +20,7 @@ namespace NoxFerit.Patches
                 NFBase.Logger.LogInfo("Night strikes...");
                 NFBase.hasNightStruck = true;
             }
+            NFBase.normalizedTimeOfDay = ___normalizedTimeOfDay;
             // Debug
             //NFBase.Logger.LogDebug(___normalizedTimeOfDay.ToString());
         }
