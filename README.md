@@ -7,3 +7,4 @@ Nox Ferit is a configurable race against a shorter clock. At a certain time, the
 > [!IMPORTANT]
 > Nox Ferit requires BepInExPack as a dependency
 > The scrap multiplier will most likely not work with other scrap-changing mods
+
