@@ -9,3 +9,14 @@ Nox Ferit is a configurable race against a shorter clock. At a certain time, the
 
 # Bug Reports & Feature Requests
 Feel free to reach out via issues on the [Github Page](https://github.com/ASlimeInAHoodie/Nox-Ferit). Please include any relevant logs for error reporting, thanks!
+
+# Releases
+## Release v1.1.0
+- Fixed a critical bug where the spike would only happen once every time you loaded the game.
+- Fixed an issue where an error would show up in console when you quit to title.
+- Made changes to PlayerControllerB patching to include debugging on space and separated cheats into its own patch.
+    - Currently stopped usage of double-jump as it was causing issues with debugging.
+- Scrap amount multiplier now works with other mods! It now adds the multiplier at the start of a load instead of sets it when scrap spawns (Has not been tested when loading a new save - may add multiple times).
+- Modified the default value in config for Night Strike Time from 8 (around 3-4pm) to 7.
+## Full Release! v1.0.0
+Previously known as v0.3.8, the full release has been completed with tweaks to the debugging tools (godmode, inf sprint, double jump, etc).
