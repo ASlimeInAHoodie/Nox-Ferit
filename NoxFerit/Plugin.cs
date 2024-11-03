@@ -16,7 +16,7 @@ namespace NoxFerit
     {
         private const string modGUID = "aslimeinahoodie.NoxFerit";
         private const string modName = "Nox Ferit";
-        private const string modVersion = "1.1.0";
+        private const string modVersion = "1.2.0";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -24,20 +24,24 @@ namespace NoxFerit
 
         internal new static ManualLogSource Logger;
 
-        internal new static bool hasNightStruck;
-        internal new static float normalizedTimeOfDay;
-        internal new static float scrapAmountMultiplier;
-        internal new static bool isDoubledJump;
+        internal static bool hasNightStruck;
+        internal static float normalizedTimeOfDay;
+        internal static float currentDayTime;
+        internal static float totalTime;
+        internal static float scrapAmountMultiplier;
+        internal static bool isDoubledJump;
+        internal static bool isServer;
+        internal static bool hasMonstersSpawned;
 
-        internal new static float scrapMultiplier;
-        internal new static float nightStrikeTime;
-        internal new static int extraEnemyPowerBase;
-        internal new static int extraEnemyPower;
+        internal static float Multiplier;
+        internal static float nightStrikeTime;
+        internal static int ventCount;
 
 
         void Awake()
         {
             hasNightStruck = false;
+            hasMonstersSpawned = false;
 
             if (Instance == null)
             {
@@ -54,29 +58,21 @@ namespace NoxFerit
             harmony.PatchAll(typeof(RoundManagerPatch));
             harmony.PatchAll(typeof(TimeOfDayPatch));
 
-            var configScrapMultiplier = base.Config.Bind(
+            var configMultiplier = base.Config.Bind(
                 "General",
-                "Scrap Multiplier",
-                3f,
-                "Add this much to the multiplier of scrap spawned on moons (1 = +100%, 2.5 = +250%)."
+                "Multiplier",
+                1.5f,
+                "A multiplier to change how much scrap spawns, as well as how many enemies spawn. (1 = +100%, 2.5 = +250%)."
                 );
             var configNightStrikeTime = base.Config.Bind(
                 "General",
                 "Night Strikes Time",
-                7f,
-                "Roughly how many hours have past (including 8 am) before Night Strikes (Range between 1 for 8am, and 15 for 12am)."
-                );
-            var configEnemyPower = base.Config.Bind(
-                "General",
-                "Enemy Power",
-                10,
-                "Modify the spike of enemies spawned when Night Strikes."
+                6f,
+                "Roughly how many hours have past (including 8 am) before Night Strikes (Range between 1 for 8am, 6 for 1pm, and 15 for 12am)."
                 );
 
-            scrapMultiplier = configScrapMultiplier.Value;
+            Multiplier = configMultiplier.Value;
             nightStrikeTime = configNightStrikeTime.Value;
-            extraEnemyPowerBase = configEnemyPower.Value;
-            extraEnemyPower = extraEnemyPowerBase;
 
             if (nightStrikeTime > 15 || nightStrikeTime < 1)
             {

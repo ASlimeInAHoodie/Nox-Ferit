@@ -84,12 +84,15 @@ namespace NoxFerit.Patches
         static void patchPlayerJump()
         {
             NFBase.Logger.LogDebug(
-                " normalizedTimeOfDay: " + NFBase.normalizedTimeOfDay + 
+                " timeLeft: " + (((NFBase.nightStrikeTime * 0.06666) - NFBase.normalizedTimeOfDay) * 900).ToString() + 
+                " \n normalizedTimeOfDay: " + NFBase.normalizedTimeOfDay + 
+                " \n currentDatTime / totalTime: " + NFBase.currentDayTime.ToString() + "/" + NFBase.totalTime.ToString() + 
                 " \n hasNightStruck: " + NFBase.hasNightStruck + 
                 " \n scrapAmountMultiplier: " + NFBase.scrapAmountMultiplier +
-                " \n scrapMultiplier: " + NFBase.scrapMultiplier + 
-                " \n nightStrikeTime: " + NFBase.nightStrikeTime + 
-                " \n extraEnemyPower: " + NFBase.extraEnemyPower
+                " \n configMultiplier: " + NFBase.Multiplier + 
+                " \n configNightStrikeTime: " + NFBase.nightStrikeTime + 
+                " \n ventCount: " + NFBase.ventCount + 
+                " \n isServer: " + NFBase.isServer
                 );
         }
     }

@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,71 +14,78 @@ namespace NoxFerit.Patches
     {
         private static RoundManager instance;
 
-        
+
         [HarmonyPatch("SpawnScrapInLevel")]
         [HarmonyPrefix]
         static void patchSpawnScrapInLevel(ref float ___scrapAmountMultiplier)
         {
+            // Do nothing if not host
+            if (!NFBase.isServer) { return; }
+            //
             NFBase.hasNightStruck = false;
-            NFBase.extraEnemyPower = NFBase.extraEnemyPowerBase;
+            NFBase.hasMonstersSpawned = false;
             NFBase.scrapAmountMultiplier = ___scrapAmountMultiplier;
+            //log.AddLog(new EventLogMessage
+            //{
+            //    ObjectName = $"{playerName} ({instance.playerClientId})",
+            //    Message = message,
+            //    DetailsTitle = action,
+            //    Details = details,
+            //    Type = EventLogType.Player
+            //})
         }
-        
 
-        [HarmonyPatch("Update")]
+
+        [HarmonyPatch(typeof(RoundManager), "Update")]
         [HarmonyPostfix]
-        static void patchUpdate(ref float ___currentMaxOutsidePower, ref float ___currentOutsideEnemyPower, ref EnemyVent[] ___allEnemyVents, ref float ___currentEnemyPower, ref float ___currentMaxInsidePower)
+        static void updatePostPatch(RoundManager __instance)
         {
+            // Do nothing if not host
+            if (!NFBase.isServer) { return; }
+            //
+            if (NFBase.ventCount != __instance.allEnemyVents.Length)
+            {
+                NFBase.ventCount = __instance.allEnemyVents.Length;
+                NFBase.Logger.LogDebug("allEnemyVents populated with count: " + NFBase.ventCount);
+            }
+
             if (NFBase.hasNightStruck)
             {
-                if (instance == null)
+                if (!NFBase.hasMonstersSpawned)
                 {
-                    instance = GameObject.FindObjectOfType<RoundManager>();
-                } else
+                    NFBase.hasMonstersSpawned = true;
+                    __instance.currentMaxInsidePower += NFBase.ventCount * NFBase.Multiplier;
+                }
+                if (__instance.currentEnemyPower < __instance.currentMaxInsidePower)
                 {
-                    if (NFBase.extraEnemyPower > 0)
+                    __instance.PlotOutEnemiesForNextHour();
+                    // Open all vents
+                    for (int i = 0; i < __instance.allEnemyVents.Length; i++)
                     {
-                        ___currentMaxInsidePower += NFBase.extraEnemyPower;
-                        NFBase.extraEnemyPower = 0;
-                    }
-                    if (___currentEnemyPower < ___currentMaxInsidePower)
-                    {
-                        instance.PlotOutEnemiesForNextHour();
-                        // Open all vents
-                        for (int i = 0; i < ___allEnemyVents.Length; i++)
+                        if (__instance.allEnemyVents[i].occupied)
                         {
-                            if (___allEnemyVents[i].occupied)
-                            {
-                                instance.SpawnEnemyFromVent(___allEnemyVents[i]);
-                                NFBase.Logger.LogDebug("Found enemy vent: " + ___allEnemyVents[i].gameObject.name + ". Spawning " + ___allEnemyVents[i].enemyType.enemyName + " from vent.");
-                            }
+                            __instance.SpawnEnemyFromVent(__instance.allEnemyVents[i]);
+                            NFBase.Logger.LogDebug("Found enemy vent: " + __instance.allEnemyVents[i].gameObject.name + ". Spawning " + __instance.allEnemyVents[i].enemyType.enemyName + " from vent.");
                         }
                     }
-                        
-
-
                 }
             }
         }
 
-        [HarmonyPatch("Start")]
+        [HarmonyPatch(typeof(RoundManager), "Start")]
         [HarmonyPostfix]
-        static void StartPatch(ref float ___scrapAmountMultiplier)
+        static void StartPostPatch(RoundManager __instance)
         {
+            NFBase.isServer = __instance.IsServer;
+            // Do nothing if not host
+            if (!NFBase.isServer) { return; }
+            //
             // set scrap at start of game
-            ___scrapAmountMultiplier += NFBase.scrapMultiplier;
+            __instance.scrapAmountMultiplier += NFBase.Multiplier;
 
             // Possible scaling?
             //NFBase.extraEnemyPower += 1;
             //NFBase.scrapMultiplier += 0.1f;
-        }
-
-        //DespawnPropsAtEndOfRound
-        [HarmonyPatch("UnloadSceneObjectsEarly")]
-        [HarmonyPostfix]
-        static void UnloadSceneObjectsEarlyPatch()
-        {
-            instance = null;
         }
     }
 }

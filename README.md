@@ -11,6 +11,12 @@ Nox Ferit is a configurable race against a shorter clock. At a certain time, the
 Feel free to reach out via issues on the [Github Page](https://github.com/ASlimeInAHoodie/Nox-Ferit). Please include any relevant logs for error reporting, thanks!
 
 # Releases
+## Release V1.2.0
+- Reworked the monster spawning process to involve the vent count and the configured multiplier (ventCount * configMultiplier).
+- Reworked time checking to be (hopefully) more accurate.
+- Merged scrapMultiplier and enemyPower in configuration to Multiplier.
+- Changed default config values to 1.5f multiplier, and 6f nightStrikeTime.
+- Added checks to stop clients from trying to run server side code.
 ## Release v1.1.0
 - Fixed a critical bug where the spike would only happen once every time you loaded the game.
 - Fixed an issue where an error would show up in console when you quit to title.
